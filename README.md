@@ -102,3 +102,23 @@ Kittens Carousel is a static website application deployed with Apache Web Server
 ## Resources
 
 - [AWS Cloudformation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
+
+## Part-4  Working with the latest Amazon Linux 2023 AMI
+
+- Call the latest version of AL2023
+```
+aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --region us-east-1
+```
+
+- Filter the image ID of latest AL2023
+```
+aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --query 'Parameters[0].[Value]' --output text
+```
+
+- Launching EC2 instance with latest AL2023 AMI. 
+```
+aws ec2 run-instances \
+   --image-id $(aws ssm get-parameters --names /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --query \
+               'Parameters[0].[Value]' --output text) \
+   --count 1 \
+   --instance-type t2.micro
