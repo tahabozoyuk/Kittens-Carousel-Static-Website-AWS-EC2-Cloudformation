@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Kittens Carousel Application Stack"
+
+Parameters:
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-default-x86_64'
+  InstanceType:
+    Type: 'String'
+    Default: 't2.micro'
+
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !Sub "${LatestAmiId}"
+      InstanceType: !Ref InstanceType
+      KeyName: 'first_key'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install httpd -y
+          service httpd start
+          chkconfig httpd on
+
+          # Download and extract application files from GitHub using curl
+            FOLDER="https://github.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation.git"
+            curl -s --create-dirs -o "/var/www/html/index.html" -L "$FOLDER"index.html
+            curl -s --create-dirs -o "/var/www/html/cat0.jpg" -L "$FOLDER"cat0.jpg
+            curl -s --create-dirs -o "/var/www/html/cat1.jpg" -L "$FOLDER"cat1.jpg
+            curl -s --create-dirs -o "/var/www/html/cat2.jpg" -L "$FOLDER"cat2.jpg
+          
+          # Set ownership and permissions
+          chown -R apache:apache /var/www/html/
+          chmod -R 755 /var/www/html/
+
+  WebServerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Security group for the Web Server"
+      SecurityGroupIngress:
+        - CidrIp: "0.0.0.0/0"
+          IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+      Tags:
+        - Key: "Name"
+          Value: "Web Server of ${AWS::StackName}"
