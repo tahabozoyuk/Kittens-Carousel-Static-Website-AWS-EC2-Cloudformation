@@ -4,12 +4,17 @@ Description: >
   template for
   using Cloudformation.
     
+Parameters:
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-default-x86_64'
+
 Resources:
-  TahaInstance:
-    Type: AWS::EC2::Instance
+  Instance:
+    Type: 'AWS::EC2::Instance'
     Properties:
-      ImageId: ami-0230bd60aa48260c6
-      InstanceType: t2.micro
+      InstanceType: 't2.micro'
+      ImageId: !Ref LatestAmiId
       KeyName: first_key # Use your own keypair without .pem
       SecurityGroups: 
         - !Ref TahaSecGrp
