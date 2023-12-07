@@ -15,17 +15,18 @@ Resources:
     Properties:
       ImageId: !Sub "${LatestAmiId}"
       InstanceType: !Ref InstanceType
-      KeyName: 'first_key'
+      KeyName: 'esra'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          yum update -y
-          yum install httpd -y
-          service httpd start
-          chkconfig httpd on
+          # Install Apache Web Server
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+         
 
           # Download and extract application files from GitHub using curl
-            FOLDER="https://github.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation.git"
+            FOLDER="https://raw.githubusercontent.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation.git"
             curl -s --create-dirs -o "/var/www/html/index.html" -L "$FOLDER"index.html
             curl -s --create-dirs -o "/var/www/html/cat0.jpg" -L "$FOLDER"cat0.jpg
             curl -s --create-dirs -o "/var/www/html/cat1.jpg" -L "$FOLDER"cat1.jpg
