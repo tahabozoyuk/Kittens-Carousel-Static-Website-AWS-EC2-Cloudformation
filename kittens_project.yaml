@@ -2,35 +2,31 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "Kittens Carousel Application Stack"
 
 Parameters:
-  KeyName:
-    Type: "AWS::EC2::KeyPair::KeyName"
-    Description: "Name of an existing EC2 KeyPair to enable SSH access to the instance"
-  InstanceType:
-    Type: "String"
-    Default: "t2.micro"
-    Description: "EC2 instance type"
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-minimal-kernel-default-x86_64'
 
 Resources:
   EC2Instance:
     Type: "AWS::EC2::Instance"
     Properties:
-      ImageId: "ami-xxxxxxxxxxxxxxxxx"  # Replace with the latest Amazon Linux AMI ID
-      InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref 't2.micro'
+      KeyName: 'first_key'
       UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          # Download and deploy application files
-          curl -LJO https://github.com/yourusername/yourrepository/archive/main.zip
-          unzip main.zip
-          mv yourrepository-main/* /var/www/html/
-          # Install Apache Web Server
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-          # Set ownership and permissions
-          chown -R apache:apache /var/www/html/
-          chmod -R 755 /var/www/html/
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash
+            # Download and deploy application files
+            git clone https://github.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation.git /var/www/html/
+            # Install Apache Web Server
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            # Set ownership and permissions
+            chown -R apache:apache /var/www/html/
+            chmod -R 755 /var/www/html/
+          - {}
 
   WebServerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
@@ -44,8 +40,3 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "Web Server of ${AWS::StackName}"
-
-Outputs:
-  WebsiteURL:
-    Description: "URL of the Kittens Carousel Application"
-    Value: !Sub "http://${EC2Instance.PublicIp}/"
