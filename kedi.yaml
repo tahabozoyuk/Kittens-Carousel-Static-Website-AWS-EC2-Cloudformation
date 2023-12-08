@@ -13,11 +13,11 @@ Resources:
   EC2Instance:
     Type: "AWS::EC2::Instance"
     Properties:
-      ImageId: !Sub "${LatestAmiId}"
+      ImageId: !Ref  "${LatestAmiId}"
       InstanceType: !Ref InstanceType
       KeyName: 'esra'
       UserData:
-        Fn::Base64: !Sub |
+        Fn::Base64: !Ref  |
             #! /bin/bash
             yum update -y
             yum install httpd -y
