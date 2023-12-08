@@ -18,23 +18,20 @@ Resources:
       KeyName: 'esra'
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash
-          # Install Apache Web Server
-          yum install -y httpd
-          systemctl start httpd
-          systemctl enable httpd
-         
+            #! /bin/bash
+            yum update -y
+            yum install httpd -y
+            systemctl start httpd
+            systemctl enable httpd
+            chown -R apache:apache /var/www/html/
+            chmod -R 755 /var/www/html/
+            # Download and extract application files from GitHub using curl
+            FOLDER="https://raw.githubusercontent.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation/main/"
 
-          # Download and extract application files from GitHub using curl
-            FOLDER="https://raw.githubusercontent.com/tahabozoyuk/Kittens-Carousel-Static-Website-AWS-EC2-Cloudformation.git"
             curl -s --create-dirs -o "/var/www/html/index.html" -L "$FOLDER"index.html
             curl -s --create-dirs -o "/var/www/html/cat0.jpg" -L "$FOLDER"cat0.jpg
             curl -s --create-dirs -o "/var/www/html/cat1.jpg" -L "$FOLDER"cat1.jpg
             curl -s --create-dirs -o "/var/www/html/cat2.jpg" -L "$FOLDER"cat2.jpg
-          
-          # Set ownership and permissions
-          chown -R apache:apache /var/www/html/
-          chmod -R 755 /var/www/html/
 
   WebServerSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
