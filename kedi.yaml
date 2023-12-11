@@ -10,7 +10,7 @@ Parameters:
     Default: 't2.micro'
 
 Resources:
-  EC2Instance:
+  myWebServer:
     Type: "AWS::EC2::Instance"
     Properties:
       ImageId: !Ref LatestAmiId
@@ -45,3 +45,9 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "Web Server of ${AWS::StackName}"
+Outputs:
+  webSiteURL:
+    Description: URL of website
+    Value: !Sub
+      - http://${PublicDNS}
+      - PublicDNS: !GetAtt myWebServer.PublicDnsName
